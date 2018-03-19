@@ -1,0 +1,60 @@
+---
+
+# This is run as a regular ansible playbook
+#
+#  ansible-playbook -i hosts playbooks/...
+
+- hosts: all
+
+  tasks:
+
+  - name: update packages
+    become: true
+    apt:
+      state:        latest
+      update_cache: yes
+      upgrade:      yes
+
+  - name: install collectd
+    tags:
+      - collectd
+    become: true
+    apt:
+      state: latest
+      name:  collectd
+
+  - name: install collectd-utils
+    tags:
+      - collectd
+    become: true
+    apt:
+      state: latest
+      name:  collectd-utils
+
+  - name: configure collectd
+    become: yes
+    tags:
+      d
+    notify: restart collectd
+
+    blockinfile:
+      block:  "{{ lookup('template', '../templates/collectd.conf.j2') }}"
+      dest:   "/etc/collectd/collectd.conf"
+      backup: yes
+
+  - name: setup hosts files
+    become: yes
+    blockinfile:
+      block:  "{{ lookup('template', '../templates/hosts.j2') }}"
+      dest:   "/etc/hosts"
+      backup: yes
+
+  handlers:
+
+    - name: restart collectd
+      become: true
+      service:
+          name:   collectd
+          state: restarted
+
+#      msg: "{{ groups['all'] | map('regex_replace', '$', '111\n') | list }}"

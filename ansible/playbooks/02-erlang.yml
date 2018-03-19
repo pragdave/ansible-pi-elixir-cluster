@@ -1,0 +1,31 @@
+---
+- hosts: all
+
+  tasks:
+
+  - name: set up esl package key
+    become: true
+    apt_key: url=https://packages.erlang-solutions.com/debian/erlang_solutions.asc state=present
+
+  - name: set up esl package access 1
+    become: true
+    apt_repository:
+      repo: deb https://packages.erlang-solutions.com/debian stretch contrib
+      state: present
+
+  - name: and install erlang
+    become: yes
+    apt:
+      state: latest
+      name:  erlang
+
+- hosts: builder
+
+  tasks:
+  - name: and install elixir
+    become: yes
+    tags:
+    - d
+    apt:
+      state: latest
+      name:  elixir

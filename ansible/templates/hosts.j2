@@ -1,0 +1,9 @@
+
+192.168.3.1     graphite-host
+
+
+{% for host in groups.all %}
+{% if host != inventory_hostname %}
+{{ hostvars[host].ansible_host }}    {{ host }}
+{% endif %}
+{% endfor %}

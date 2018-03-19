@@ -1,0 +1,21 @@
+Hostname "{{ inventory_hostname }}"
+Interval 10
+LoadPlugin write_graphite
+
+<Plugin write_graphite>
+	<Node "{{ inventory_hostname }}-collectd">
+		Host "graphite-host"
+		Port "2003"
+		Protocol "tcp"
+		ReconnectInterval 0
+		LogSendErrors true
+		Prefix "{{ inventory_hostname }}."
+		Postfix ""
+		StoreRates true
+		AlwaysAppendDS false
+		EscapeCharacter "_"
+		SeparateInstances false
+		PreserveSeparator false
+		DropDuplicateFields false
+	</Node>
+</Plugin>

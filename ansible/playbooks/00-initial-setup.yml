@@ -1,0 +1,70 @@
+---
+
+# This must be run using
+#
+#   ansible-playbook -i "192.168.0.11," -u pi -k playbooks/00-initial-setup.yml -e "ip=11 host=n1"
+#
+#  REMEMBER THE COMMA ---------------^
+#
+# Once the ssh key has beenm set, you can skip the -k option
+#
+# ansible-playbook -i "192.168.3.11," -u pi  playbooks/00-initial-setup.yml -e "ip=11 host=n1"
+
+- hosts: all
+
+  tasks:
+
+  - name: check command line for host
+    fail:
+      msg: "\n\nNeed to pass 'host=xx' as an extra variable on the command line\n\n"
+    when:  host is not defined
+
+  - name: check command line for ip
+    fail:
+      msg: "\n\nNeed to pass 'ip=ddd' (last octet) as an extra variable on the command line\n\n"
+    when:  ip is not defined
+
+  - name: Set authorized key took from file
+    authorized_key:
+      user: pi
+      state: present
+      key: "{{ lookup('file', '/Users/dave/.ssh/id_ed25519.pub') }}"
+
+  - name: Remove password logins
+    become: true
+    lineinfile:
+      path:   /etc/ssh/sshd_config
+      state:  present
+      regexp: "#PasswordAuthentication yes"
+      line:   "PasswordAuthentication no"
+
+
+  - name: set network interface address
+    become: true
+    notify: reboot
+    blockinfile:
+      path: /etc/dhcpcd.conf
+      block: |
+        interface eth0
+        static ip_address=192.168.3.{{ ip }}
+        static routers=192.168.3.1
+        static domain_name_servers=8.8.8.8
+
+  - name: and set hostname
+    become: true
+    shell:  "echo {{ host }} >/etc/hostname"
+
+  - name: and add to hosts
+    become: true
+    notify: reboot
+    lineinfile:
+      path:   /etc/hosts
+      state:  present
+      regexp: "127.0.1.1"
+      line:   "127.0.1.1       {{host}}"
+
+  handlers:
+
+  - name:    reboot
+    become: true
+    command: /sbin/reboot
