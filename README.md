@@ -52,13 +52,13 @@ Now we'll use Ansible to load up the rest of the environments.
 
 1. Create an inventory file. I call mine `hosts`
 
-    n2
-    n3
-    n4
-    n5
+        n2
+        n3
+        n4
+        n5
 
-    [builder]
-    n1
+        [builder]
+        n1
 
   The `n1, n2`... are the names of my nodes (set using the `host=` parameter to
   `ansible_playbook` above. I nominate one machine to be the build server for
