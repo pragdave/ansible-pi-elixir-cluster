@@ -19,3 +19,12 @@ LoadPlugin write_graphite
 		DropDuplicateFields false
 	</Node>
 </Plugin>
+
+LoadPlugin python
+<Plugin python>
+    ModulePath "/opt/collectd_plugins"
+    Import "cpu_temp"
+    <Module cpu_temp>
+        Path "/sys/class/thermal/thermal_zone0/temp"
+    </Module>
+</Plugin>

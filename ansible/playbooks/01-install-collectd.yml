@@ -31,10 +31,22 @@
       state: latest
       name:  collectd-utils
 
-  - name: configure collectd
+  - name: create directory for collectd plugins
     become: yes
+    file:
+      name: /opt/collectd_plugins
+      state: directory
+
+  - name: install cpu temperature plugin
+    become: yes
+    copy:
+      src: ../files/cpu_temp.py
+      dest: /opt/collectd_plugins/cpu_temp.py
+
+  - name: configure collectd
     tags:
       d
+    become: yes
     notify: restart collectd
 
     blockinfile:
