@@ -22,10 +22,17 @@
 - hosts: builder
 
   tasks:
-  - name: and install elixir
+
+  - name: Build machine install elixir
+    become: yes
+    apt:
+      state: latest
+      name:  elixir
+
+  - name: and git
     become: yes
     tags:
     - d
     apt:
       state: latest
-      name:  elixir
+      name:  git-all
